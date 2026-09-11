@@ -1,0 +1,57 @@
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace BancoSENAIAPI.Controllers
+{
+    [ApiController]
+    [Route("api/v1/[controller]")]
+    public class DocumentoController : Controller
+    {
+        private readonly string _caminhoRaiz = Path.Combine
+            (Directory.GetCurrentDirectory()
+            , "ClienteArquivos");
+
+        private static List<Models.DocumentoMetadado> _documentoMetadados = new List<Models.DocumentoMetadado>();
+
+        private static int _nextid = 1;
+
+        [HttpPost("upload/{CodigoCliente}")]
+        public async Task<IActionResult> AnexarArquivo(int CodigoCliente, IFormFile arquivo)
+        {
+            if(arquivo == null || arquivo.Length == 0)
+            {
+                return BadRequest("nenhum arquivo foi enviado");
+            }
+
+            string pastaCliente = Path.Combine(_caminhoRaiz, CodigoCliente.ToString());
+
+            if (!Directory.Exists(pastaCliente))
+            {
+                Directory.CreateDirectory(pastaCliente);
+            }
+
+            string extensao = Path.Combine(arquivo.FileName);
+
+            string nameOriginal = Path.GetFileNameWithoutExtension(arquivo.FileName);
+            string novonome = $"{CodigoCliente}_{nameOriginal}_{Guid.NewGuid()}{extensao}";
+            string caminhofinal = Path.Combine(pastaCliente, novonome);
+
+            using (var stream = new FileStream(caminhofinal, FileMode.Create))
+            {
+                await arquivo.CopyToAsync(stream);
+            }
+
+            var documentosMetadados = new Models.DocumentoMetadado
+            {
+                Id = _nextid,
+                Nome = nameOriginal,
+                Extensao = extensao,
+                Caminho = caminhofinal,
+                CodigoCliente = CodigoCliente
+            };
+
+            _documentoMetadados.Add(documentosMetadados);
+
+            return Ok(new { mensagem = "Documento anexado com sucesso", arquivoSalvo = novonome });
+        }
+    }
+}
