@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace BancoSENAIAPI.Controllers
 {
@@ -42,7 +43,7 @@ namespace BancoSENAIAPI.Controllers
 
             var documentosMetadados = new Models.DocumentoMetadado
             {
-                Id = _nextid,
+                Id = _nextid++,
                 Nome = nameOriginal,
                 Extensao = extensao,
                 Caminho = caminhofinal,
@@ -53,5 +54,11 @@ namespace BancoSENAIAPI.Controllers
 
             return Ok(new { mensagem = "Documento anexado com sucesso", arquivoSalvo = novonome });
         }
+        [HttpGet("listar/{codigoCliente}")]
+        public  IActionResult Listardocumentos()
+        {
+            return Ok(_documentoMetadados);
+        }
+
     }
 }
