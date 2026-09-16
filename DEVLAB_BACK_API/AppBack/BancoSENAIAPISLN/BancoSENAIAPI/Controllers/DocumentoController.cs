@@ -18,9 +18,22 @@ namespace BancoSENAIAPI.Controllers
         [HttpPost("upload/{CodigoCliente}")]
         public async Task<IActionResult> AnexarArquivo(int CodigoCliente, IFormFile arquivo)
         {
+
+            const long tamanhodocumento = 2 *(1024*1024);
+            if(arquivo.Length > tamanhodocumento)
+            {
+                return BadRequest(new {mensagem = "arquivo com tamanho excedido"});
+            }
             if(arquivo == null || arquivo.Length == 0)
             {
                 return BadRequest("nenhum arquivo foi enviado");
+            }
+            var extensoespermitidas = new[] { ".pdf", ".jpg", ".png" };
+            string extensoes = Path.GetExtension(arquivo.FileName).ToLowerInvariant();
+
+            if (extensoespermitidas.Contains(extensoes))
+            {
+                return BadRequest(new {mensagem = $"Extensão{extensoes} inválida para envio."});
             }
 
             string pastaCliente = Path.Combine(_caminhoRaiz, CodigoCliente.ToString());
@@ -68,6 +81,13 @@ namespace BancoSENAIAPI.Controllers
             if (doc == null)
             {
                 return NotFound("documento não encontrado");
+            }
+            var arquivoinfo = new System.IO.FileInfo(doc.Caminho);
+            long tamanhoarquivo = 2 * 1024 * 1024;
+
+            if(arquivoinfo.Length > tamanhoarquivo)
+            {
+                return BadRequest(new { mensagem = "o arquivo excede o tamanho de 2 mb para download" });
             }
 
             byte[] fileBytes = System.IO.File.ReadAllBytes(doc.Caminho);
