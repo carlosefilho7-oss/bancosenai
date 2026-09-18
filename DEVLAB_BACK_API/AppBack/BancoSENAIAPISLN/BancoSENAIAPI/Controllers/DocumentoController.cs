@@ -31,7 +31,7 @@ namespace BancoSENAIAPI.Controllers
             var extensoespermitidas = new[] { ".pdf", ".jpg", ".png" };
             string extensoes = Path.GetExtension(arquivo.FileName).ToLowerInvariant();
 
-            if (extensoespermitidas.Contains(extensoes))
+            if (!extensoespermitidas.Contains(extensoes))
             {
                 return BadRequest(new {mensagem = $"Extensão{extensoes} inválida para envio."});
             }
