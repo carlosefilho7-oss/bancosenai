@@ -12,7 +12,7 @@ namespace BancoSENAIAPI.Controllers
 
         public AgenciaController(AppDbContext context)
         {
-            _context=context;
+            _context=context;  
         }
 
            
