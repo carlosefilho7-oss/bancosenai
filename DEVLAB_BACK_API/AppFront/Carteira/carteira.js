@@ -1,26 +1,32 @@
 const URL_API = 'https://localhost:7081/api/v1/Carteira';
-let modoEdicao = false;
+let modoEdicao = false; // Declaração da variável que estava faltando
 
 document.addEventListener("DOMContentLoaded", listarCarteiras);
 
 async function listarCarteiras() {
-    const response = await fetch(URL_API);
-    const carteiras = await response.json();
-    const corpo = document.getElementById('corpoTabela');
-    corpo.innerHTML = '';
+    try {
+        const response = await fetch(URL_API);
+        if (!response.ok) return;
 
-    carteiras.forEach(c => {
-        corpo.innerHTML += `
-            <tr>
-                <td>${c.numeroCarteira}</td>
-                <td>${c.nomeCarteira}</td>
-                <td>${c.apetiteCarteira.toFixed(2)}</td>
-                <td>
-                    <button class="btn-editar" onclick="prepararEdicao(${c.numeroCarteira}, '${c.nomeCarteira}', ${c.apetiteCarteira})">Editar</button>
-                    <button class="btn-excluir" onclick="excluirCarteira(${c.numeroCarteira})">Excluir</button>
-                </td>
-            </tr>`;
-    });
+        const carteiras = await response.json();
+        const corpo = document.getElementById('corpoTabela');
+        corpo.innerHTML = '';
+
+        carteiras.forEach(c => {
+            corpo.innerHTML += `
+                <tr>
+                    <td>${c.numeroCarteira}</td>
+                    <td>${c.nomeCarteira}</td>
+                    <td>${c.apetiteCarteira.toFixed(2)}</td>
+                    <td>
+                        <button class="btn-editar" onclick="prepararEdicao(${c.numeroCarteira}, '${c.nomeCarteira}', ${c.apetiteCarteira})">Editar</button>
+                        <button class="btn-excluir" onclick="excluirCarteira(${c.numeroCarteira})">Excluir</button>
+                    </td>
+                </tr>`;
+        });
+    } catch (error) {
+        console.error("Erro ao listar carteiras:", error);
+    }
 }
 
 async function salvar() {
@@ -28,31 +34,37 @@ async function salvar() {
     const nome = document.getElementById('nomeCarteira').value;
     const apetite = document.getElementById('apetite').value;
 
-    // Validação obrigatória: só salva se todos os campos estiverem preenchidos
     if (!num || !nome || !apetite) {
         alert("Preencha todos os campos antes de prosseguir.");
         return;
     }
 
-    const carteira = { 
-        numeroCarteira: parseInt(num), 
-        nomeCarteira: nome, 
-        apetiteCarteira: parseFloat(apetite) 
+    const carteira = {
+        numeroCarteira: parseInt(num),
+        nomeCarteira: nome,
+        apetiteCarteira: parseFloat(apetite)
     };
-    
+
     const metodo = modoEdicao ? 'PUT' : 'POST';
     const urlFinal = modoEdicao ? `${URL_API}/${num}` : URL_API;
 
-    const response = await fetch(urlFinal, {
-        method: metodo,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(carteira)
-    });
+    try {
+        const response = await fetch(urlFinal, {
+            method: metodo,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(carteira)
+        });
 
-    if (response.ok) {
-        alert(modoEdicao ? "Carteira atualizada!" : "Carteira cadastrada!");
-        limparCampos();
-        listarCarteiras();
+        if (response.ok) {
+            alert(modoEdicao ? "Carteira atualizada com sucesso!" : "Carteira cadastrada com sucesso!");
+            limparCampos();
+            await listarCarteiras();
+        } else {
+            const erroMensagem = await response.text();
+            alert(`Erro: ${erroMensagem}`);
+        }
+    } catch (error) {
+        alert("Erro ao conectar com a API.");
     }
 }
 
@@ -65,11 +77,14 @@ function prepararEdicao(num, nome, apetite) {
 }
 
 async function excluirCarteira(num) {
-    // Caixa de diálogo de confirmação solicitada
     if (confirm(`Deseja realmente excluir a carteira ${num}?`)) {
-        const response = await fetch(`${URL_API}/${num}`, { method: 'DELETE' });
-        if (response.ok) {
-            listarCarteiras(); // Atualiza a visualização e remove da memória RAM
+        try {
+            const response = await fetch(`${URL_API}/${num}`, { method: 'DELETE' });
+            if (response.ok) {
+                await listarCarteiras();
+            }
+        } catch (error) {
+            alert("Erro ao excluir carteira.");
         }
     }
 }
