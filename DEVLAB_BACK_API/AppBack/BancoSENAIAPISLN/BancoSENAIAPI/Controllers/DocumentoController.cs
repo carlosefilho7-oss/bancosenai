@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using BancoSENAIAPI.Data;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.EntityFrameworkCore;
 
 namespace BancoSENAIAPI.Controllers
 {
@@ -11,6 +13,11 @@ namespace BancoSENAIAPI.Controllers
             (Directory.GetCurrentDirectory()
             , "ClienteArquivos");
 
+        private readonly AppDbContext _context;
+        public DocumentoController(AppDbContext context)
+        {
+            _context = context;
+        }
         private static List<Models.DocumentoMetadado> _documentoMetadados = new List<Models.DocumentoMetadado>();
 
         private static int _nextid = 1;
@@ -63,20 +70,21 @@ namespace BancoSENAIAPI.Controllers
                 CodigoCliente = CodigoCliente
             };
 
-            _documentoMetadados.Add(documentosMetadados);
+            _context.DocumentoMetadados.Add(documentosMetadados);
+            await _context.SaveChangesAsync();
 
             return Ok(new { mensagem = "Documento anexado com sucesso", arquivoSalvo = novonome });
         }
         [HttpGet("listar/{codigoCliente}")]
         public  IActionResult Listardocumentos()
         {
-            return Ok(_documentoMetadados);
+            return Ok(_context.DocumentoMetadados);
         }
 
         [HttpGet("download/{id}")] 
-        public IActionResult dowload(int id) 
+        public async  Task<IActionResult> dowload(int id) 
         {
-         var doc = _documentoMetadados.FirstOrDefault(d =>  d.Id == id);
+         var doc = await _context.DocumentoMetadados.FirstOrDefaultAsync(d =>  d.Id == id);
 
             if (doc == null)
             {
@@ -97,16 +105,17 @@ namespace BancoSENAIAPI.Controllers
 
         [HttpDelete("excluir/{id}")]
 
-        public IActionResult deletar(int id)
+        public async Task<IActionResult> deletar(int id)
         {
-            var doc = _documentoMetadados.FirstOrDefault(d => d.Id == id);
+            var doc =await _context.DocumentoMetadados.FirstOrDefaultAsync(d => d.Id == id);
 
             if(doc == null)
             {
                 return NotFound("documento não encontrado");
             }
 
-            _documentoMetadados.Remove(doc);
+            _context.DocumentoMetadados.Remove(doc);
+            await _context.SaveChangesAsync();
             return Ok("arquivo deletado");
         }
 
