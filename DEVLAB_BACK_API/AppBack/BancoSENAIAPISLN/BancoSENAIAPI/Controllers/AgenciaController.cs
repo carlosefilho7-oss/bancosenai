@@ -23,12 +23,12 @@ namespace BancoSENAIAPI.Controllers
         [HttpPost]
         public IActionResult Cadastrar([FromBody] Agencia novaAgencia)
         {
-            
+
             if (_agencias.Any(a => a.NumeroAgencia == novaAgencia.NumeroAgencia))
                 return BadRequest(new { message = "Este número de agência já existe." });
 
             _agencias.Add(novaAgencia);
-            // Retorna Status 201 Created conforme boas práticas REST [6, 8]
+
             return Created("", novaAgencia);
         }
 
@@ -38,9 +38,9 @@ namespace BancoSENAIAPI.Controllers
             var agencia = _agencias.FirstOrDefault(a => a.NumeroAgencia == codigo);
 
             if (agencia == null)
-                return NotFound(new { message = "Agência não encontrada." }); // Status 404 [6, 7]
+                return NotFound(new { message = "Agência não encontrada." });
 
-            return Ok(agencia); // Status 200 OK [6, 7]
+            return Ok(agencia);
         }
 
         [HttpPut("{codigo}")]
@@ -53,7 +53,7 @@ namespace BancoSENAIAPI.Controllers
             agenciaExistente.Cidade = agenciaAtualizada.Cidade;
             agenciaExistente.SiglaEstado = agenciaAtualizada.SiglaEstado;
 
-            // Retorna Status 204 No Content para atualizações bem-sucedidas [6, 9]
+
             return NoContent();
         }
 
@@ -65,7 +65,7 @@ namespace BancoSENAIAPI.Controllers
             if (agencia == null) return NotFound();
 
             _agencias.Remove(agencia);
-            return Ok(new { message = "Agência excluída com sucesso." }); // Status 200 [6]
+            return Ok(new { message = "Agência excluída com sucesso." });
         }
     }
 }
