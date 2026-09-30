@@ -27,47 +27,46 @@ namespace BancoSENAIAPI.Controllers
         [HttpPost]
         public async  Task<IActionResult> Post([FromBody] Cliente novoCliente)
         {
-            if (string.IsNullOrWhiteSpace(novoCliente.NomeCliente) || string.IsNullOrWhiteSpace(novoCliente.CPF))
+            if (string.IsNullOrWhiteSpace(novoCliente.Nome) || string.IsNullOrWhiteSpace(novoCliente.CPF))
             {
                 return BadRequest("Nome e CPF são obrigatórios.");
             }
 
-            novoCliente.CodigoCliente = _proximoId++;
+            novoCliente.Codigo = _proximoId++;
             if (novoCliente.NumeroAgencia == 0) novoCliente.NumeroAgencia = 10;
 
             _context.Cliente.Add(novoCliente);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(Get), new { id = novoCliente.CodigoCliente }, novoCliente);
+            return CreatedAtAction(nameof(Get), new { id = novoCliente.Codigo }, novoCliente);
         }
 
         [HttpPut("{codigoCliente}")]
         public async  Task <IActionResult> Put(int codigoCliente, [FromBody] Cliente clienteAtualizado)
         {
-            var clienteExistente = await _context.Cliente.FirstOrDefaultAsync(c => c.CodigoCliente == codigoCliente);
+            var clienteExistente = await _context.Cliente.FirstOrDefaultAsync(c => c.Codigo == codigoCliente);
             if (clienteExistente == null)
             {
                 return NotFound("Cliente não encontrado.");
             }
 
-            if (string.IsNullOrWhiteSpace(clienteAtualizado.NomeCliente) || string.IsNullOrWhiteSpace(clienteAtualizado.CPF))
+            if (string.IsNullOrWhiteSpace(clienteAtualizado.Nome) || string.IsNullOrWhiteSpace(clienteAtualizado.CPF))
             {
                 return BadRequest("Nome e CPF são obrigatórios.");
             }
-
-            clienteExistente.NomeCliente = clienteAtualizado.NomeCliente;
+            clienteExistente.Codigo = clienteAtualizado.Codigo;
+            clienteExistente.Nome = clienteAtualizado.Nome;
             clienteExistente.CPF = clienteAtualizado.CPF;
-            clienteExistente.DataNascimento = clienteAtualizado.DataNascimento;
-            clienteExistente.Sexo = clienteAtualizado.Sexo;
-            clienteExistente.Endereco = clienteAtualizado.Endereco;
-            clienteExistente.Cidade = clienteAtualizado.Cidade;
-            clienteExistente.Estado = clienteAtualizado.Estado;
+            clienteExistente.Saldo = clienteAtualizado.Saldo;
+            clienteExistente.NumeroAgencia = clienteAtualizado.NumeroAgencia;
+           
+           
             await _context.SaveChangesAsync();
             return NoContent();
         }
-        [HttpDelete("{codigoCliente}")]
-        public async Task<IActionResult> Delete(int codigoCliente)
+        [HttpDelete("{Codigo}")]
+        public async Task<IActionResult> Delete(int Codigo)
         {
-            var cliente = await _context.Carteira.FirstOrDefaultAsync(a=> a.NumeroCarteira == codigoCliente);
+            var cliente = await _context.Carteira.FirstOrDefaultAsync(a=> a.NumeroCarteira == Codigo);
             if (cliente == null) {
                 return NotFound();
                     };
