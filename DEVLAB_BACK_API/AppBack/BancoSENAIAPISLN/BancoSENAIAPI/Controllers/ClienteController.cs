@@ -25,25 +25,24 @@ namespace BancoSENAIAPI.Controllers
         }
 
         [HttpPost]
-        public async  Task<IActionResult> Post([FromBody] Cliente novoCliente)
+        public async Task<IActionResult> Post([FromBody] Cliente novoCliente)
         {
-            if (string.IsNullOrWhiteSpace(novoCliente.Nome) || string.IsNullOrWhiteSpace(novoCliente.CPF))
+            if (await _context.Cliente.AnyAsync(a=> a.Codigo == novoCliente.Codigo))
             {
                 return BadRequest("Nome e CPF são obrigatórios.");
             }
 
-            novoCliente.Codigo = _proximoId++;
-            if (novoCliente.NumeroAgencia == 0) novoCliente.NumeroAgencia = 10;
+            
 
             _context.Cliente.Add(novoCliente);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(Get), new { id = novoCliente.Codigo }, novoCliente);
         }
 
-        [HttpPut("{codigoCliente}")]
-        public async  Task <IActionResult> Put(int codigoCliente, [FromBody] Cliente clienteAtualizado)
+        [HttpPut("{Codigo}")]
+        public async  Task <IActionResult> Put(int Codigo, [FromBody] Cliente clienteAtualizado)
         {
-            var clienteExistente = await _context.Cliente.FirstOrDefaultAsync(c => c.Codigo == codigoCliente);
+            var clienteExistente = await _context.Cliente.FirstOrDefaultAsync(c => c.Codigo == Codigo);
             if (clienteExistente == null)
             {
                 return NotFound("Cliente não encontrado.");
@@ -66,11 +65,11 @@ namespace BancoSENAIAPI.Controllers
         [HttpDelete("{Codigo}")]
         public async Task<IActionResult> Delete(int Codigo)
         {
-            var cliente = await _context.Carteira.FirstOrDefaultAsync(a=> a.NumeroCarteira == Codigo);
+            var cliente = await _context.Cliente.FirstOrDefaultAsync(a=> a.Codigo == Codigo);
             if (cliente == null) {
                 return NotFound();
                     };
-            _context.Carteira.Remove(cliente);
+            _context.Cliente.Remove(cliente);
             await _context.SaveChangesAsync();
             return Ok();
         }

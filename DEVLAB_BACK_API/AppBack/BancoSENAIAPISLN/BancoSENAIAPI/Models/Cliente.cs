@@ -7,10 +7,10 @@ namespace BancoSENAIAPI.Models
         [Key]
         public int Codigo { get; set; }
 
-        [Required(ErrorMessage = "O Nome do cliente é obrigatório.")]
+        [Required]
         public string Nome { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "O CPF é obrigatório.")] // 11 digítos
+        [Required] // 11 digítos
         public string CPF { get; set; } = string.Empty;
         [Required]
         public int NumeroAgencia { get; set; } = 10;
