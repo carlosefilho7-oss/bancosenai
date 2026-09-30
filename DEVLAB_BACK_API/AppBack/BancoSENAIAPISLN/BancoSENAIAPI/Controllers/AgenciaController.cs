@@ -37,10 +37,10 @@ namespace BancoSENAIAPI.Controllers
             return Created("", novaAgencia);
         }
 
-        [HttpGet("{codigo}")]
-        public async  Task<IActionResult> ConsultarPorCodigo(int codigo)
+        [HttpGet("{NumeroAgencia}")]
+        public async  Task<IActionResult> ConsultarPorCodigo(int NumeroAgencia)
         {
-            var agencia = await _context.Agencia.FirstOrDefaultAsync(a => a.NumeroAgencia == codigo);
+            var agencia = await _context.Agencia.FirstOrDefaultAsync(a => a.NumeroAgencia == NumeroAgencia);
 
             if (agencia == null)
                 return NotFound(new { message = "Agência não encontrada." });
@@ -48,10 +48,10 @@ namespace BancoSENAIAPI.Controllers
             return Ok(agencia);
         }
 
-        [HttpPut("{codigo}")]
-        public async Task<IActionResult> Alterar(int codigo, [FromBody] Agencia agenciaAtualizada)
+        [HttpPut("{NumeroAgencia}")]
+        public async Task<IActionResult> Alterar(int NumeroAgencia, [FromBody] Agencia agenciaAtualizada)
         {
-            var agenciaExistente = await _context.Agencia.FirstOrDefaultAsync(a => a.NumeroAgencia == codigo);
+            var agenciaExistente = await _context.Agencia.FirstOrDefaultAsync(a => a.NumeroAgencia == NumeroAgencia);
 
             if (agenciaExistente == null) return NotFound();
 
@@ -63,10 +63,10 @@ namespace BancoSENAIAPI.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{codigo}")]
-        public async Task<IActionResult> Excluir(int codigo)
+        [HttpDelete("{NumeroAgencia}")]
+        public async Task<IActionResult> Excluir(int NumeroAgencia)
         {
-            var agencia = await _context.Agencia.FirstOrDefaultAsync(a => a.NumeroAgencia == codigo);
+            var agencia = await _context.Agencia.FirstOrDefaultAsync(a => a.NumeroAgencia == NumeroAgencia);
 
             if (agencia == null) return NotFound();
 
