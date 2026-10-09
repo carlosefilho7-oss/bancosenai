@@ -2,10 +2,13 @@
 using Microsoft.AspNetCore.Mvc;
 using BancoSENAIAPI.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+
 namespace BancoSENAIAPI.Controllers
 {
     [Route("api/v1/[controller]")] // Rota ajustada para bater com o JavaScript
     [ApiController]
+    [Authorize]
     public class CarteiraController : ControllerBase
     {
         private readonly AppDbContext _context;

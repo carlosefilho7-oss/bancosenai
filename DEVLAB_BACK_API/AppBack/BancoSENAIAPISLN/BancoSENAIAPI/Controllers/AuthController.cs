@@ -9,6 +9,7 @@ namespace BancoSENAIAPI.Controllers
 {
     [ApiController]
     [Route("api/v1/[controller]")]
+    [Authorize]
     public class AuthController : Controller
     {
         private readonly AppDbContext _context;
@@ -19,7 +20,7 @@ namespace BancoSENAIAPI.Controllers
             _context=context;
             _tokenService=tokenService;
         }
-
+        [AllowAnonymous]
         [HttpPost("registrar")]
 
         public async Task<IActionResult> Registrar([FromBody] RegisterRequest dto)
@@ -38,7 +39,7 @@ namespace BancoSENAIAPI.Controllers
             await _context.SaveChangesAsync();
             return Created("", new { usuario.Id, usuario.NomeUsuario });
         }
-
+        [AllowAnonymous]
         [HttpPost("Login")]
 
         public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
